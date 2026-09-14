@@ -1,0 +1,1 @@
+Lee `Learning.md` en la raíz del repositorio y sigue todas sus reglas e instrucciones de comportamiento en cada sesión.
