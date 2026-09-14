@@ -1,0 +1,444 @@
+Sí. Y después de revisar las fuentes disponibles, **hay una combinación de datasets que encaja muy bien con este proyecto**. No encontré un dataset público perfecto que contenga simultáneamente *banners/photo shoots + tags + impresiones + clicks + conversiones*, pero sí podemos construir un proyecto bastante realista combinando fuentes.
+
+### Mi primera opción: H&M Personalized Fashion Recommendations
+
+H&M publicó para una competencia de Kaggle un dataset que contiene **imágenes reales de productos, metadata de artículos, clientes y transacciones históricas**. El dataset completo ronda los 34.6 GB. ([Kaggle][1])
+
+[H&M Personalized Fashion Recommendations – Kaggle](https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data?utm_source=chatgpt.com)
+
+Lo interesante es la estructura:
+
+```text
+images/
+    ├── 0108775015.jpg
+    ├── 0108775044.jpg
+    └── ...
+
+articles.csv
+    article_id
+    product_type
+    colour
+    graphical_appearance
+    department
+    garment_group
+    description
+    ...
+
+customers.csv
+    customer_id
+    age
+    ...
+
+transactions_train.csv
+    customer_id
+    article_id
+    date
+    price
+    sales_channel
+    ...
+```
+
+Es decir:
+
+```text
+             PRODUCT IMAGE
+                   │
+                   ▼
+        ┌────────────────────┐
+        │  SMART TAGGING AI  │
+        │ CV / VLM / CLIP    │
+        └────────────────────┘
+                   │
+          predicted tags
+                   │
+                   ▼
+    ┌──────────────────────────┐
+    │ Category                 │
+    │ Color                    │
+    │ Pattern                  │
+    │ Garment type             │
+    │ Style                    │
+    │ Visual characteristics   │
+    └──────────────────────────┘
+                   │
+                   ▼
+           H&M transactions
+                   │
+                   ▼
+        BUSINESS EVALUATION
+```
+
+Y eso permite hacer algo particularmente bueno: **H&M ya tiene metadata de los artículos**, por lo que parte de esa metadata puede convertirse en tu *ground truth*.
+
+Puedes ocultársela al modelo y preguntarle únicamente a partir de la imagen:
+
+```text
+Image
+  ↓
+Smart Tagging model
+  ↓
+Predicted:
+  product_type = "T-shirt"
+  color = "Black"
+  graphical_appearance = "Solid"
+  garment_group = "Jersey Basic"
+```
+
+Y compararlo contra los valores reales.
+
+Esto convierte el proyecto en un problema supervisado/multilabel que puedes medir con Precision, Recall, F1, mAP, etc.
+
+### Pero hay algo todavía más importante
+
+No me quedaría en:
+
+> "Mi modelo identifica correctamente los tags."
+
+Porque eso sigue siendo fundamentalmente un proyecto de Computer Vision.
+
+Podemos demostrar **business value** utilizando las transacciones.
+
+Por ejemplo, crear dos sistemas de recomendación:
+
+```text
+MODEL A — BASELINE
+customer history
+      +
+product metadata
+      ↓
+Recommendation model
+
+
+MODEL B — SMART TAGGING
+customer history
+      +
+product metadata
+      +
+AI-generated visual tags
+      +
+image embeddings
+      ↓
+Recommendation model
+```
+
+Y comparar:
+
+$$
+MAP@12_{baseline}
+$$
+
+contra:
+
+$$
+MAP@12_{smart-tagging}
+$$
+
+La propia competencia H&M utiliza **MAP@12** como métrica para evaluar las recomendaciones. ([Kaggle][2])
+
+Así podrías obtener un resultado de portafolio como:
+
+> "Adding AI-generated visual attributes improved recommendation MAP@12 by X%, with the strongest improvement among products/customers with sparse historical interaction."
+
+Eso es muchísimo más convincente profesionalmente que:
+
+> "Fine-tuned ResNet and obtained 91% accuracy."
+
+---
+
+## Hay una segunda fuente que complementa muy bien H&M: Fashionpedia
+
+Aquí es donde el proyecto puede acercarse más al concepto original que mencionabas de **photo shoots, modelos y contenido de marketing**.
+
+Fashionpedia tiene aproximadamente **48,825 imágenes** procedentes de street style, eventos, runway y online shopping. Tiene 27 categorías principales de apparel, 19 partes de prendas y **294 atributos detallados**, además de máscaras de segmentación. ([Fashionpedia][3])
+
+[Fashionpedia Dataset](https://fashionpedia.github.io/home/index.html?utm_source=chatgpt.com)
+
+Un ejemplo conceptual sería:
+
+```text
+                 PHOTO SHOOT
+                     │
+                     ▼
+              Vision model
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+        Person    Clothing    Context
+                    │
+                    ▼
+              Smart Tags
+                    │
+       ┌────────────┼──────────────┐
+       ▼            ▼              ▼
+     dress        sleeve         pattern
+     jacket       collar         material
+     pants        neckline       silhouette
+```
+
+Esta fuente es **mucho mejor que H&M para entrenar la parte puramente visual**, porque las imágenes son más complejas que un simple producto sobre fondo neutro.
+
+Además, la taxonomía fue creada por expertos en fashion, lo cual te da algo que normalmente es una de las partes más difíciles de un proyecto de Smart Tagging real: **la ontology/taxonomy de tags**. ([GitHub][4])
+
+---
+
+## Tercera opción: DeepFashion
+
+DeepFashion contiene más de **800.000 imágenes**, 50 categorías y aproximadamente 1.000 atributos descriptivos. También incluye fotografías de ecommerce y fotografías de consumidores, y fue diseñado para tareas como attribute prediction, clothing recognition e image retrieval. ([Multimedia Laboratory][5])
+
+[DeepFashion Dataset](https://mmlab.ie.cuhk.edu.hk/projects/DeepFashion.html?utm_source=chatgpt.com)
+
+Tiene una característica especialmente interesante:
+
+```text
+Consumer image                     Ecommerce image
+
+     👤                                  👕
+ person wearing                         product
+      item                               page
+       │                                  │
+       └──────── SAME PRODUCT ────────────┘
+```
+
+Por eso sirve muy bien para construir:
+
+**Visual Search / Shop-the-look / Similar Product Retrieval.**
+
+Ejemplo:
+
+```text
+User uploads picture
+        ↓
+Vision encoder
+        ↓
+Embedding
+        ↓
+Vector Database
+        ↓
+Nearest products
+        ↓
+Ecommerce recommendations
+```
+
+Desde el punto de vista del Smart Tagging, sería una buena fuente para desarrollar la representación visual, aunque **DeepFashion está restringido a investigación no comercial**. ([Multimedia Laboratory][5])
+
+---
+
+## Cuarta opción: Amazon Reviews 2023
+
+Esta alternativa es enorme.
+
+Amazon Reviews 2023, del McAuley Lab, contiene reviews de usuarios, interacciones, metadata de productos, precios, descripciones, categorías, imágenes y relaciones como *bought together*. ([Amazon Reviews][6])
+
+Y específicamente tiene categorías como:
+
+```text
+Amazon_Fashion
+Clothing_Shoes_and_Jewelry
+```
+
+La categoría `Clothing_Shoes_and_Jewelry`, por ejemplo, contiene millones de usuarios, productos e interacciones; existe además una versión 5-core más manejable para experimentación. ([Amazon Reviews][7])
+
+[Amazon Reviews 2023 Dataset](https://amazon-reviews-2023.github.io/?utm_source=chatgpt.com)
+
+Cada producto puede tener algo parecido a:
+
+```text
+product
+│
+├── title
+├── description
+├── price
+├── categories
+├── details
+├── images
+│     ├── thumbnail
+│     ├── large
+│     └── high resolution
+│
+├── reviews
+├── rating
+└── user interactions
+```
+
+Esto abre otra posibilidad muy interesante:
+
+```text
+                   IMAGE
+                     │
+             Vision Encoder
+                     │
+               visual tags
+                     │
+                     +
+              DESCRIPTION
+                     │
+              Text Encoder
+                     │
+                     +
+               USER REVIEWS
+                     │
+              Text Encoder
+                     │
+                     ▼
+              MULTIMODAL MODEL
+                     │
+                     ▼
+        Recommendation / Retrieval
+```
+
+Eso sería tecnológicamente más ambicioso que H&M.
+
+---
+
+# ¿Cuál usaría para este proyecto?
+
+Mi ranking sería:
+
+| Dataset          | Smart Tagging | Photo shoots | Ecommerce | Customer behavior | Business evaluation |
+| ---------------- | ------------: | -----------: | --------: | ----------------: | ------------------: |
+| **H&M**          |         ★★★★☆ |        ★★☆☆☆ |     ★★★★★ |             ★★★★★ |           **★★★★★** |
+| **Fashionpedia** |         ★★★★★ |        ★★★★★ |     ★★☆☆☆ |             ☆☆☆☆☆ |               ★★☆☆☆ |
+| **DeepFashion**  |         ★★★★★ |        ★★★★☆ |     ★★★☆☆ |             ☆☆☆☆☆ |               ★★☆☆☆ |
+| **Amazon 2023**  |         ★★★★☆ |        ★★☆☆☆ |     ★★★★★ |             ★★★★★ |               ★★★★★ |
+
+Pero **yo no elegiría uno solo**.
+
+Para un proyecto serio de portafolio propondría:
+
+# Fashionpedia + H&M
+
+La arquitectura conceptual sería:
+
+```text
+                     FASHIONPEDIA
+                          │
+             Images + expert attributes
+                          │
+                          ▼
+               ┌─────────────────────┐
+               │ Smart Tagging Model │
+               │                     │
+               │ CLIP / SigLIP       │
+               │ VLM                 │
+               │ Detection           │
+               │ Segmentation        │
+               └─────────────────────┘
+                          │
+                          ▼
+                   Tag taxonomy
+                          │
+            ┌─────────────┴─────────────┐
+            │                           │
+            ▼                           ▼
+       Fashionpedia                  H&M Images
+       evaluation                       │
+                                       ▼
+                                AI-generated tags
+                                       │
+                         ┌─────────────┴─────────────┐
+                         │                           │
+                         ▼                           ▼
+                 Semantic Search              Recommendation
+                                                    │
+                                             H&M transactions
+                                                    │
+                                                    ▼
+                                             Business impact
+```
+
+Eso te permitiría presentar el proyecto como:
+
+> **AI-Powered Smart Tagging and Content Intelligence for Fashion Ecommerce**
+
+y no simplemente como:
+
+> Computer Vision Fashion Classification.
+
+---
+
+## Incluso estructuraría el proyecto en tres experimentos
+
+**Experimento 1 — Smart Tagging Accuracy**
+
+```text
+image → tags
+
+Metrics:
+Precision
+Recall
+F1
+mAP
+```
+
+Pregunta:
+
+> ¿Puede IA automatizar la clasificación de activos visuales con suficiente precisión?
+
+**Experimento 2 — Semantic Asset Discovery**
+
+```text
+"black women's running outfit"
+                 ↓
+          Text embedding
+                 ↓
+        Vector similarity
+                 ↓
+             Top-K images
+```
+
+Métricas:
+
+$$
+Precision@K,\ Recall@K,\ NDCG@K
+$$
+
+Pregunta:
+
+> ¿Smart Tagging permite encontrar assets mejor que metadata tradicional?
+
+**Experimento 3 — Ecommerce Business Value**
+
+```text
+Transactions
+     +
+Smart Tags
+     +
+Image embeddings
+     ↓
+Recommendation system
+     ↓
+Next purchase
+```
+
+Comparar:
+
+```text
+Baseline recommender
+        VS
+Multimodal recommender
+```
+
+con:
+
+$$
+MAP@12,\ Recall@12,\ NDCG@12
+$$
+
+Aquí tendrías la conexión directa con negocio.
+
+Hay una limitación importante: **H&M proporciona compras, pero no impresiones de banners/productos**, por lo que no podríamos afirmar que Smart Tagging incrementó CTR o conversion rate. Para eso necesitaríamos exposure/clickstream data. El proyecto debe decir correctamente que demuestra **incremento en recommendation/retrieval performance**, no incremento causal en ventas.
+
+### Mi recomendación
+
+Si tu objetivo es crear un proyecto que te ayude a demostrar capacidad como **Data Scientist + AI Engineer**, elegiría **H&M como dataset principal y Fashionpedia como dataset auxiliar para desarrollar la inteligencia visual**.
+
+Es un proyecto particularmente bueno porque permite tocar **Computer Vision, multimodal models, embeddings, vector search, recommender systems, experimentación y métricas de negocio** dentro de un único caso coherente. Además, las reglas de H&M permiten el uso para fines no comerciales y de investigación/educación, que encaja con un proyecto de portafolio, aunque conviene respetar sus condiciones de redistribución. ([Kaggle][8])
+
+[1]: https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data?select=transactions_train.csv&utm_source=chatgpt.com "H&M Personalized Fashion Recommendations | Kaggle"
+[2]: https://www.kaggle.com/c/h-and-m-personalized-fashion-recommendations/?utm_source=chatgpt.com "H&M Personalized Fashion Recommendations | Kaggle"
+[3]: https://fashionpedia.github.io/home/index.html?utm_source=chatgpt.com "Fashionpedia"
+[4]: https://github.com/cvdfoundation/fashionpedia?utm_source=chatgpt.com "GitHub - cvdfoundation/fashionpedia · GitHub"
+[5]: https://mmlab.ie.cuhk.edu.hk/projects/DeepFashion.html?utm_source=chatgpt.com "DeepFashion Database"
+[6]: https://amazon-reviews-2023.github.io/index.html?utm_source=chatgpt.com "Amazon Reviews'23"
+[7]: https://amazon-reviews-2023.github.io/?utm_source=chatgpt.com "Amazon Reviews'23"
+[8]: https://www.kaggle.com/c/h-and-m-personalized-fashion-recommendations/rules?utm_source=chatgpt.com "H&M Personalized Fashion Recommendations | Kaggle"

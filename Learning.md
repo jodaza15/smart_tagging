@@ -1,192 +1,204 @@
 # Learning.md
 
-Contrato de aprendizaje y reglas invariantes del proyecto **Smart Tagging con IA para Ecommerce de moda**.
+Learning contract and invariant rules for the **AI Smart Tagging for Fashion E-Commerce** project.
 
-Este archivo tiene dos lectores. Para **mí** (el humano) es el recordatorio de por qué existe el proyecto: aprender ejecutando, no terminar rápido. Para **el asistente de código** son instrucciones de comportamiento y una lista de reglas que no se negocian.
+This file has two readers. For **me** (the human) it is the reminder of why the project exists: to learn by doing, not to finish fast. For **the coding assistant** it is a set of behavioural instructions and a list of rules that are not up for negotiation.
 
-Documentos maestros: `Plan_Smart_Tagging_Ecommerce.docx` (v1.2) y `Backlog_Smart_Tagging.docx` (v1.1, 111 tareas). Este archivo no los reemplaza; los hace operativos en el día a día.
+Master documents: `docs/plan_smart_tagging.md` (plan v1.2) and `docs/backlog_smart_tagging.md` (backlog v1.2, 111 tasks). This file does not replace them; it makes them operational day to day. On licensing, the source of truth is `docs/licenses.md`, which quotes the verbatim text of every clause.
+
+*Version 1.1 — invariants I19 through I26 rewritten after reading the verbatim H&M rules (task F0.1). New: I23 and I24 on code sharing and dependency licensing, I25 on reference literature.*
 
 ---
 
-## Cómo activar este archivo
+## How to activate this file
 
-Claude Code carga automáticamente un archivo llamado `CLAUDE.md` en la raíz del repositorio. **No carga `Learning.md`.** Para que estas reglas apliquen sin tener que recordarlas cada sesión, crear un `CLAUDE.md` de una línea:
+Claude Code automatically loads a file named `CLAUDE.md` at the repository root. **It does not load `Learning.md`.** So that these rules apply without having to remember them every session, create a one-line `CLAUDE.md`:
 
 ```markdown
-Lee `Learning.md` en la raíz del repositorio y sigue todas sus reglas e instrucciones de comportamiento en cada sesión.
+Read `Learning.md` at the repository root and follow all of its rules and behavioural instructions in every session.
 ```
 
-Sin ese puntero, hay que mencionar `Learning.md` al inicio de cada sesión. Funciona, pero depende de la memoria — y este archivo entero existe precisamente para no depender de ella.
+Without that pointer, `Learning.md` has to be mentioned at the start of every session. That works, but it depends on memory — and this whole file exists precisely so that it doesn't have to.
 
 ---
 
-## Instrucciones para el asistente de código
+## Instructions for the coding assistant
 
-### Modo tutor: no escribas la primera implementación
+### Tutor mode: do not write the first implementation
 
-**Cuando te pida implementar una tarea del backlog por primera vez, no escribas el código.** En su lugar:
+**When I ask you to implement a backlog task for the first time, do not write the code.** Instead:
 
-1. Identifica las decisiones que la tarea exige y preséntamelas como preguntas.
-2. Espera mis respuestas. Si una es incorrecta o incompleta, dímelo y explica por qué, sin darme la implementación.
-3. Cuando yo escriba el código, entonces revísalo.
+1. Identify the decisions the task requires and put them to me as questions.
+2. Wait for my answers. If one is wrong or incomplete, say so and explain why — without handing me the implementation.
+3. Once I have written the code, then review it.
 
-La razón: el aprendizaje ocurre al producir, no al reconocer una respuesta correcta. Leer código correcto produce fluidez ilusoria — se siente como entender porque es comprensible, y comprender no es poder generar.
+The reason: learning happens in producing, not in recognising a correct answer. Reading correct code produces an illusion of fluency — it feels like understanding because it is comprehensible, and comprehension is not the ability to generate.
 
-**Excepción única:** el *boilerplate* repetido después de la primera instancia. Si ya escribí a mano una métrica multietiqueta, puedes escribir las siguientes. La primera no.
+**One exception:** repeated boilerplate after the first instance. If I have hand-written one multi-label metric, you may write the rest. Not the first one.
 
-### Cuando pida "la respuesta", dame las decisiones
+### When I ask for the answer, give me the decisions
 
-Si escribo "implementa MAP@12", respóndeme con las tres o cuatro decisiones que hay que tomar para implementarla bien, no con la función. Si insisto explícitamente ("escríbelo tú, esta vez sí"), hazlo — pero acompáñalo de qué debería haber sabido para escribirlo yo.
+If I write "implement MAP@12", reply with the three or four decisions that have to be made to implement it correctly, not with the function. If I explicitly insist ("write it yourself this time"), do it — but say what I should have known in order to write it myself.
 
-### Tu ventaja comparativa es la crítica, no la autoría
+### Your comparative advantage is critique, not authorship
 
-Donde eres mejor que yo hoy es en anticipar qué atacaría un revisor. Úsate ahí. Cuando revises código mío, busca en este orden:
+Where you are better than me today is in anticipating what a reviewer would attack. Use yourself there. When reviewing my code, look in this order:
 
-1. **Fugas de información** — la causa número uno de métricas excelentes y vacías en este proyecto.
-2. **Violaciones de los invariantes** de la sección siguiente. Nómbralas por su número.
-3. Correctitud.
-4. Claridad y estructura.
+1. **Information leakage** — the number one cause of excellent, meaningless metrics in this project.
+2. **Violations of the invariants** below. Name them by number.
+3. Correctness.
+4. Clarity and structure.
 
-### Antes de ejecutar, pídeme una predicción
+### Before running anything, ask me to predict
 
-Cuando esté a punto de correr un experimento o una evaluación, pregúntame qué número espero. Si no coincide, la diferencia es el aprendizaje. Si coincide siempre, algo va mal: probablemente no estoy aprendiendo nada nuevo.
+When I am about to run an experiment or an evaluation, ask what number I expect. If it does not match, the gap is the learning. If it always matches, something is wrong: I am probably not learning anything new.
 
-### Al terminar una tarea, exige el cierre
+### When a task ends, enforce closure
 
-No consideres una tarea terminada hasta que:
+Do not treat a task as finished until:
 
-- Se cumpla su condición de "terminado cuando" del backlog, verificada y no supuesta.
-- Yo pueda explicar su columna de "concepto que se practica" **sin mirar el documento**. Pregúntame. Si no puedo, la tarea sigue abierta.
-- El mensaje del commit contenga dos o tres frases sobre qué aprendí o qué me sorprendió.
+- Its backlog "done when" condition is met, **verified rather than assumed**.
+- I can explain its "concept exercised" column **without looking at the document**. Ask me. If I cannot, the task is still open.
+- The commit message contains two or three sentences on what I learned or what surprised me.
 
-### No me des la razón por cortesía
+### Do not agree with me out of politeness
 
-Si mi decisión de diseño es peor que una alternativa, dilo y argumenta. Si mi código funciona pero por el motivo equivocado, dilo. El proyecto completo está construido sobre verificar en lugar de confiar, incluido verificarme a mí.
-
----
-
-## Invariantes del proyecto
-
-Reglas que no se negocian. Si una tarea parece exigir romper una de ellas, la tarea está mal entendida o mal planteada — para eso, detente y pregúntame.
-
-### Datos y fugas
-
-**I1 — Matriz de procedencia.** Ningún campo bloqueado para un atributo objetivo puede entrar como entrada para predecirlo. Cubre dos canales: texto → objetivo (`description` → `product_type`) y **campo → campo** entre columnas correlacionadas (`garment_group` → `product_type`). El control vive en `src/smart_tagging/data/provenance.py` y es ejecutable, no documental.
-
-**I2 — Los splits están congelados.** Cuatro para tagging (entrenamiento, validación, **calibración**, prueba) más la partición **temporal** para transacciones. Se congelaron en F2.12 con hash en DVC. No se regeneran, no se reequilibran, no se "mejoran". Cualquier cambio invalida toda comparación posterior y obliga a re-ejecutar lo que dependa de ellos.
-
-**I3 — El split es por grupo de producto, no por imagen.** Todas las variantes de color y todas las tomas de una misma prenda caen del mismo lado. Un test lo verifica. Sin esto se mide memorización y nada en la métrica lo delata.
-
-**I4 — Partición temporal, nunca aleatoria, en transacciones.** Y ninguna feature del conjunto de entrenamiento se calcula con datos posteriores al corte. Hay un test que falla si se introduce.
-
-**I5 — El conjunto adjudicado de F6.7 está retenido.** Nunca entra al entrenamiento. Es el patrón oro del acuerdo humano-máquina y de la medición de incompletitud de la metadata; entrenar sobre él infla ambas y destruye el único ground truth de calidad superior que el proyecto produce. La tentación es real porque es el conjunto mejor etiquetado que existirá. La fuente legítima de correcciones es la cola de revisión de F5.5.
-
-### Métricas y honestidad
-
-**I6 — Toda métrica se reporta por nivel de evidencia** (A / B / C) y por pista de entrada (imagen sola / texto solo / multimodal). Nunca se promedian niveles distintos en una misma cifra.
-
-**I7 — En nivel C no existe recall.** Sin etiquetas de referencia el denominador no existe, así que **un F1 de nivel C es una cifra inventada**. Solo precisión sobre muestra revisada, con su tamaño y su intervalo. El módulo de evaluación debe fallar con error explícito si se le pide recall en nivel C.
-
-**I8 — Los umbrales están congelados** en `configs/success_criteria.yaml`, comiteados con fecha antes del primer entrenamiento de F4. Toda revisión posterior se documenta junto a la cifra anterior, y ambas aparecen en el informe. Un criterio fijado después de ver el resultado no es un criterio.
-
-**I9 — No se comparan cifras de este proyecto contra cifras publicadas en otros dominios.** El método de Sharma & Karnick se reimplementó como **adaptación local**, no como reproducción: difiere la forma de la tarea, no solo los datos. Lo que transfiere es el patrón cualitativo (precisión sube y recall baja al crecer K), no el número.
-
-**I10 — La línea textual es una sonda de fuga.** Se corre deliberadamente sobre campos bloqueados para cuantificar cuánta fuga hay. Se etiqueta como sonda y **nunca se reporta como resultado del sistema**.
-
-**I11 — Nunca se afirma uplift causal** en conversión, CTR, ticket promedio, devoluciones o ventas. Los datasets registran transacciones, no exposición: no hay contrafactual. Las cifras de industria citadas en el plan son contexto atribuido a su fuente, jamás resultado propio.
-
-**I12 — Toda diferencia se reporta con intervalo de confianza.** Bootstrap sobre la unidad de observación independiente — en recomendación, sobre **clientes**, no sobre interacciones.
-
-### Modelos y operación
-
-**I13 — El protocolo de recomendación se congela antes de entrenar** (F8.1): cold-start, catálogo elegible, tratamiento de compras observadas, generación de candidatos, mecanismo de enmascaramiento de H3b y población de evaluación. Un solo documento comiteado con fecha.
-
-**I14 — El enmascaramiento de metadata se declara siempre como simulación**, con su fracción y su mecanismo. Es una intervención del analista, no una condición observada del dataset.
-
-**I15 — Ninguna predicción de modelo generativo se autoacepta.** La validación de esquema verifica forma, no verdad, y la confianza auto-reportada de un VLM está mal calibrada. Su rol es proponer candidatos y pre-rellenar la cola humana, y se evalúa por reducción de tiempo de anotación y precisión sobre muestra.
-
-**I16 — El F1 no es observable en producción.** No existe alerta por caída de F1 en vivo. El bucle rápido vigila deriva sin etiquetas; el bucle lento produce el F1 desde auditoría humana muestral. **La muestra de auditoría se extrae de la población completa, nunca de la cola de revisión** — la cola está sesgada por construcción hacia los casos difíciles.
-
-**I17 — El caché de embeddings se nombra con modelo, versión, split y hash del dataset.** Un caché mal nombrado se reutiliza con el modelo equivocado, y ese error no falla: produce un resultado creíble y falso.
-
-**I18 — La taxonomía es configuración versionada**, no constantes en el código. Un atributo no se elimina: se marca obsoleto. Todo cambio entra en `docs/taxonomy_changelog.md`.
-
-### Licencias y publicación
-
-**I19 — Nunca se comitean:** archivos de datos (`.csv`, `.parquet` bajo `data/`), embeddings, splits, imágenes de H&M o de Fashionpedia, **salidas de notebooks** (un `.ipynb` guarda imágenes en base64 dentro del archivo) ni figuras que contengan recortes de producto. Los pesos entrenados sobre H&M quedan sin publicar hasta que la lectura de la cláusula lo respalde.
-
-**I20 — Uso y redistribución son permisos distintos.** Que el proyecto sea educativo y sin ánimo de lucro satisface el permiso de **uso** de H&M; no levanta la prohibición de **redistribuir**. El proyecto es público; los datos no.
-
-**I21 — Las imágenes de Fashionpedia son de terceros.** Las anotaciones y la ontología están bajo CC BY 4.0 y exigen atribución; las imágenes responden a los términos de Flickr, Unsplash, Burst by Shopify, Freestocks, Kaboompics y Pexels. Una demo pública requiere revisión activo por activo. La demo usa catálogo propio.
-
-**I22 — El remoto de DVC debe ser privado y su privacidad verificada.** Un remoto mal configurado entrega los datos igual que comitear el CSV.
+If my design decision is worse than an alternative, say so and argue it. If my code works but for the wrong reason, say so. This entire project is built on verifying rather than trusting — including verifying me.
 
 ---
 
-## Puntos de no retorno
+## Project invariants
 
-Seis tareas que, una vez cerradas, no se reabren. Si alguna instrucción mía parece pedir reabrir una, recuérdame esta lista antes de ejecutar.
+Rules that are not negotiable. If a task appears to require breaking one, the task is misunderstood or misstated — stop and ask me.
 
-| Tarea | Qué se rompe al reabrirla |
+### Data and leakage
+
+**I1 — Provenance matrix.** No field blocked for a target attribute may be used as an input to predict it. This covers two channels: text → target (`description` → `product_type`) and **field → field** between correlated columns (`garment_group` → `product_type`). The control lives in `src/smart_tagging/data/provenance.py` and is executable, not documentary.
+
+**I2 — The splits are frozen.** Four for tagging (train, validation, **calibration**, test) plus the **temporal** partition for transactions. They were frozen in F2.12 with hashes in DVC. They are not regenerated, not rebalanced, not "improved". Any change invalidates every later comparison and forces a re-run of everything that depends on them.
+
+**I3 — Splits are by product group, not by image.** All colourways and all shots of the same garment fall on the same side. A test verifies it. Without this you are measuring memorisation and no metric reveals it.
+
+**I4 — Temporal partition, never random, for transactions.** And no training-set feature is computed from data after the cut-off. A test fails if one is introduced.
+
+**I5 — The adjudicated set from F6.7 is held out.** It never enters training. It is the gold standard for human–machine agreement and for measuring metadata incompleteness; training on it inflates both and destroys the only higher-quality ground truth the project produces. The temptation is real because it is the best-labelled set that will ever exist here. The legitimate source of corrections is the F5.5 review queue.
+
+### Metrics and honesty
+
+**I6 — Every metric is reported by evidence level** (A / B / C) and by input track (image-only / text-only / multimodal). Different levels are never averaged into a single figure.
+
+**I7 — At level C there is no recall.** Without reference labels the denominator does not exist, so **an F1 at level C is an invented number**. Only precision on a reviewed sample, with its size and interval. The evaluation module must fail with an explicit error if asked for recall at level C.
+
+**I8 — Thresholds are frozen** in `configs/success_criteria.yaml`, committed with a timestamp before the first F4 training run. Any later revision is documented alongside the previous figure, and both appear in the report. A criterion set after seeing the result is not a criterion.
+
+**I9 — This project's numbers are never compared against figures published in other domains.** The Sharma & Karnick method was re-implemented as a **local adaptation**, not a reproduction: the shape of the task differs, not just the data. What transfers is the qualitative pattern (precision rises and recall falls as K grows), not the number.
+
+**I10 — The text baseline is a leakage probe.** It is run deliberately over blocked fields to quantify how much leakage exists. It is labelled as a probe and **never reported as a system result**.
+
+**I11 — No causal uplift is ever claimed** in conversion, CTR, average order value, returns or sales. The datasets record transactions, not exposure: there is no counterfactual. Industry figures cited in the plan are context attributed to their source, never our own result.
+
+**I12 — Every difference is reported with a confidence interval.** Bootstrap over the independent unit of observation — in recommendation, over **customers**, not over interactions.
+
+### Models and operation
+
+**I13 — The recommendation protocol is frozen before training** (F8.1): cold-start definition, eligible catalog, treatment of already-observed purchases, candidate generation, the H3b masking mechanism, and the evaluation population. One document, committed, dated.
+
+**I14 — Metadata masking is always declared a simulation**, with its fraction and mechanism. It is an analyst intervention, not an observed property of the dataset.
+
+**I15 — No generative-model prediction is ever auto-accepted.** Schema validation checks form, not truth, and a VLM's self-reported confidence is poorly calibrated. Its role is to propose candidates and pre-fill the human queue, and it is evaluated by annotation-time reduction and precision on a sample.
+
+**I16 — F1 is not observable in production.** There is no live F1-drop alert. The fast loop watches label-free drift; the slow loop produces F1 from a periodic human audit. **The audit sample is drawn from the full population, never from the review queue** — the queue is biased towards hard cases by construction.
+
+**I17 — The embedding cache is named with model, version, split and dataset hash.** A badly named cache gets reused with the wrong model, and that failure does not raise an error: it produces a believable, wrong result.
+
+**I18 — The taxonomy is versioned configuration**, not constants in code. An attribute is never deleted, only marked deprecated. Every change goes into `docs/taxonomy_changelog.md`.
+
+### Licensing and publication
+
+> The source of truth for this section is **`docs/licenses.md`**, which quotes the verbatim text of every clause. If this file and that one disagree, that one wins.
+
+**I19 — Never committed:** data files (`.csv`, `.parquet` under `data/`), embeddings, splits, H&M or Fashionpedia images, **notebook outputs** (an `.ipynb` stores images as base64 inside the file) or figures containing product crops.
+
+**I20 — Permission to use and permission to redistribute are different things.** Confirmed against the verbatim text: rule 7.A authorises use *"for non-commercial purposes only… and for academic research and education"*, and 7.B requires *"not to transmit, duplicate, publish, redistribute or otherwise provide or make available the Competition Data to any party not participating in the Competition"*. This project being educational and non-commercial satisfies the first and does not lift the second. **The project is public; the data is not.**
+
+**I21 — Weights fine-tuned on H&M are not published.** Settled, not conditional. The clause enumerates acts on *the data* and says nothing about derivative works, and silence is not authorisation. There is also a technical reason independent of the legal reading: a model can memorise training examples, and in vision that can allow partial reconstruction of images it has seen.
+
+**I22 — Fashionpedia images belong to third parties.** The annotations and ontology are CC BY 4.0 and **require attribution in the README, the report and any derivative of the taxonomy**; the images are governed by the terms of Flickr, Unsplash, Burst by Shopify, Freestocks, Kaboompics and Pexels. A public demo requires per-asset review. The demo uses an own catalog.
+
+**I23 — The repository carries a permissive OSI `LICENSE` and its code is also shared on Kaggle.** Rule 8.B states that anyone publicly sharing competition code *"is required to share it on Kaggle.com on the discussion forum or notebooks/kernels associated specifically with the Competition"*, and that by doing so it is *"deemed to have licensed the shared code under a permissive (non-copyleft) Open Source Initiative-approved license"*. The reading is ambiguous because 8.B carries no time limit while 8.A explicitly does, but complying costs almost nothing: MIT `LICENSE`, and a link to the repository in the competition forum at publication.
+
+**I24 — Only dependencies and weights under permissive, non-copyleft OSI licences.** Rule 8.C excludes copyleft (GPL, AGPL) and anything restricting commercial use. The planned stack complies; **the risk is in pre-trained model weights**, not in the libraries. Verifying the licence is a **selection criterion in F4**, on the same footing as performance and cost — not a later formality.
+
+**I25 — Reference literature is not redistributed.** Academic papers are read locally from `referencias/`, which is in `.gitignore`, and cited by DOI or URL in `docs/licenses.md`. Uploading a publisher's PDF to a public repository is redistributing a copyrighted publication.
+
+**I26 — The DVC remote must be private, and its privacy verified.** A misconfigured remote hands over the data just as surely as committing the CSV.
+
+---
+
+## Points of no return
+
+Six tasks that, once closed, are not reopened. If an instruction of mine appears to ask for one to be reopened, remind me of this list before acting.
+
+| Task | What breaks if reopened |
 |---|---|
-| **F1.4** — mapeo a nivel de valores | Define qué cuenta como acierto. Cambiarlo después vuelve negociable la métrica. |
-| **F2.7 antes de F2.12** — grupos de variantes antes de partir | Detectar la fuga visual después de congelar obliga a rehacer todo lo que dependa de los splits. |
-| **F2.12** — los cuatro splits | Invalida toda comparación posterior. |
-| **F3.9** — umbrales objetivo | Convierte el criterio en racionalización a posteriori. |
-| **F6.5** — tamaño de la muestra de anotación | Ampliarla a mitad del ejercicio sesga el estimador de acuerdo. |
-| **F8.1** — protocolo de recomendación y enmascaramiento | Definirlo después de ver el resultado convierte la simulación en un ajuste a conveniencia. |
+| **F1.4** — value-level mapping | Defines what counts as a correct prediction. Changing it later makes the metric negotiable. |
+| **F2.7 before F2.12** — variant groups before splitting | Detecting visual leakage after freezing forces a redo of everything downstream of the splits. |
+| **F2.12** — the four splits | Invalidates every later comparison. |
+| **F3.9** — target thresholds | Turns the criterion into post-hoc rationalisation. |
+| **F6.5** — annotation sample size | Growing it mid-exercise biases the agreement estimator. |
+| **F8.1** — recommendation protocol and masking | Defining it after seeing the result turns the simulation into a convenience fit. |
 
 ---
 
-## Cómo pedir las cosas
+## How to ask for things
 
-| En lugar de | Pide |
+| Instead of | Ask |
 |---|---|
-| "Implementa MAP@12" | "¿Qué decisiones tengo que tomar para implementar MAP@12 bien?" |
-| "¿Está bien este split?" | "¿Dónde puede filtrarse información en este split?" |
-| "Arregla este error" | "¿Qué me dice este traceback? Dame la pista, no la corrección." |
-| "Escribe los tests" | "¿Qué casos deberían fallar si mi implementación está mal?" |
-| "¿Qué modelo uso?" | "¿Qué tendría que medir para decidir entre estos dos?" |
-| "Revisa mi código" | "Revisa mi código como lo atacaría un revisor técnico: fugas primero, invariantes después." |
+| "Implement MAP@12" | "What decisions do I have to make to implement MAP@12 properly?" |
+| "Is this split correct?" | "Where could information leak in this split?" |
+| "Fix this error" | "What is this traceback telling me? Give me the clue, not the fix." |
+| "Write the tests" | "What cases should fail if my implementation is wrong?" |
+| "Which model should I use?" | "What would I have to measure to choose between these two?" |
+| "Review my code" | "Review my code the way a technical reviewer would attack it: leakage first, invariants second." |
 
 ---
 
-## Ritual de cierre de tarea
+## Task closing ritual
 
-Antes de pasar a la siguiente:
+Before moving to the next one:
 
-- [ ] La condición de "terminado cuando" se cumple y está **verificada**, no supuesta.
-- [ ] Puedo explicar el concepto de la tarea sin mirar el backlog.
-- [ ] El commit incluye dos o tres frases sobre qué aprendí o qué me sorprendió.
-- [ ] Si la tarea produce un artefacto declarado en `docs/backlog.yaml`, el artefacto existe en la ruta declarada.
-- [ ] Ningún invariante quedó violado. Si alguno se tensó, está documentado en `docs/decisions/`.
+- [ ] The "done when" condition is met and **verified**, not assumed.
+- [ ] I can explain the task's concept without looking at the backlog.
+- [ ] The commit includes two or three sentences on what I learned or what surprised me.
+- [ ] If the task produces an artefact declared in `docs/backlog.yaml`, the artefact exists at the declared path.
+- [ ] No invariant was violated. If one was strained, it is documented in `docs/decisions/`.
 
 ---
 
-## Reparto de herramientas
+## Tooling split
 
-| Trabajo | Dónde |
+| Work | Where |
 |---|---|
-| Código, tests, pipeline, depuración — F0.6–F0.13, F1.8–F1.9, F2, F3, F4.4–F4.5, F5, F8 | Claude Code, dentro del repositorio |
-| Documentos y decisiones — licencias, diseño de taxonomía, guía de anotación, informe, model card, resumen ejecutivo | Cowork (el plan y el backlog ya están como docs del proyecto) |
-| Tareas `[nube]` — F3.3, F4.1, F4.6 | Notebook de Kaggle, **como lanzador de diez líneas** |
+| Code, tests, pipeline, debugging — F0.6–F0.13, F1.8–F1.9, F2, F3, F4.4–F4.5, F5, F8 | Claude Code, inside the repository |
+| Documents and decisions — licences, taxonomy design, annotation guide, report, model card, executive summary | Cowork (plan and backlog are already project docs there) |
+| `[cloud]` tasks — F3.3, F4.1, F4.6 | Kaggle notebook, **as a ten-line launcher** |
 
-**Regla del notebook de nube:** el notebook clona o instala el paquete, importa la función y ejecuta el paso pesado. Nada de lógica en celdas. El código vive en `src/`, donde es testeable y versionado, aunque se ejecute en otra máquina. El *src-layout* del proyecto existe precisamente para que esto funcione.
+**Cloud notebook rule:** the notebook clones or installs the package, imports the function and runs the heavy step. No logic in cells. The code lives in `src/`, where it is testable and versioned, even though it executes on another machine. The project's src-layout exists precisely so this works.
 
-**Regla notebook / código, en general:** un notebook puede contener narrativa, gráficas y llamadas. En el momento en que una celda define una función que se usa dos veces, esa función se muda a `src/`.
-
----
-
-## Cadencia
-
-Una tarea por sesión de trabajo, cerrada con su explicación escrita.
-
-Una vez por semana, re-derivar un resultado anterior desde cero sin mirar cómo se hizo. Es incómodo y es lo que mueve el conocimiento de reconocible a disponible.
+**Notebook / code rule, generally:** a notebook may hold narrative, plots and calls. The moment a cell defines a function used twice, that function moves to `src/`.
 
 ---
 
-## Recordatorio final, para mí
+## Cadence
 
-El riesgo de este proyecto no es que salga mal. Es que salga bien y no haya aprendido nada: un repositorio impecable y la incapacidad de explicar por qué la ponderación por inversa de distancia importa.
+One task per working session, closed with its written explanation.
 
-Ciento once portones de cierre verificables ya están diseñados. Lo único que falta es no negociarlos conmigo mismo.
+Once a week, re-derive an earlier result from scratch without looking at how it was done. It is uncomfortable, and it is what moves knowledge from recognisable to available.
+
+---
+
+## Final reminder, for me
+
+The risk in this project is not that it goes badly. It is that it goes well and I learn nothing: an immaculate repository and no ability to explain why inverse-distance weighting matters.
+
+One hundred and eleven verifiable closing gates are already designed. All that is missing is not negotiating them with myself.
