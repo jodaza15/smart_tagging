@@ -1,5 +1,10 @@
-# F0.6 scope: linter and formatter only.
-# F0.4 adds nbstripout, F0.11 adds secret detection and the large-file guard.
+# F0.6 added the linter and formatter; F0.4 adds notebook output stripping.
+# F0.11 adds secret detection and the large-file guard.
+#
+# These hooks only run on a machine where someone ran `pre-commit install`.
+# They are a convenience for whoever is already inside the project, not the
+# control: nothing local survives a fresh clone, so the enforcing check lives
+# in CI (F0.11).
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9
@@ -8,3 +13,15 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      # Strips outputs and execution counts, keeps kernel metadata.
+      #
+      # This is a licence control, not tidiness. A .ipynb stores its images as
+      # base64 inside the file, so a notebook committed with an H&M product
+      # photo rendered in a cell is a redistribution of restricted data inside
+      # a public repository (I19) — and removing it later means rewriting Git
+      # history, not deleting a file.
+      - id: nbstripout

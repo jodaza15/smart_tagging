@@ -44,6 +44,9 @@ dev = [
     "ruff>=0.6",
     "pytest>=8.0",
     "pre-commit>=3.7",
+    # Needed as a real dependency, not only as a pre-commit hook: the Git clean
+    # filter installed by `nbstripout --install` invokes this interpreter.
+    "nbstripout>=0.7",
 ]
 
 [tool.hatch.build.targets.wheel]
