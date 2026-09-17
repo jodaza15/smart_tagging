@@ -35,8 +35,19 @@ dependencies = [
 # Kaggle: install without the extra; the preinstalled torch is left alone.
 # CI:     installs neither, which is what keeps the import graph honest.
 local = [
-    "torch>=2.2",
-    "torchvision>=0.17",
+    # Upper bound is an environment finding, not a preference. On this Windows
+    # machine torch 2.9.0 and 2.14.0 fail at import with
+    # `OSError [WinError 1114]` loading c10.dll — the DLL is found but its
+    # initialisation routine fails. Ruled out: missing MSVC runtimes (all
+    # present), CPU instruction sets (i7-1255U has AVX2/FMA3), and a corrupt
+    # wheel (reinstall changed nothing). 2.7.0 imports cleanly, 2.9.0 does not.
+    #
+    # This only constrains local work — export to ONNX and small experiments.
+    # The heavy steps run on Kaggle against that session's own torch, which is
+    # precisely why torch is not a base dependency. Revisit when F0.9 measures
+    # ONNX/OpenVINO latency, where a version gap against Kaggle could matter.
+    "torch>=2.7,<2.8",
+    "torchvision>=0.22,<0.23",
     "onnx>=1.16",
     "onnxruntime>=1.18",
     "openvino>=2024.0",
