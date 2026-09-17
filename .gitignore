@@ -36,3 +36,8 @@ mlruns/
 
 # reports/figures/, docs/ y los activos propios de la demo NO se ignoran:
 # son entregables publicables.
+
+# --- Notas personales de aprendizaje: viven junto a los docs, no se publican ---
+# Convencion de sufijo, no de carpeta: cualquier archivo puede volverse local
+# sin sacarlo de su sitio. Verificar con: git check-ignore -v <ruta>
+*.local.md

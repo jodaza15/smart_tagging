@@ -52,12 +52,16 @@ The full breakdown is 111 tasks in [`docs/backlog_smart_tagging.md`](docs/backlo
 
 ## Data
 
-The project uses two public sources and **neither is distributed from this repository**:
+The project uses two public sources and **neither is distributed from this repository**. Nothing under `data/` is tracked: the directory is created locally and excluded in full.
 
-- **H&M Personalized Fashion Recommendations** (Kaggle) — primary source: catalog images, commercial metadata and transactions.
-- **Fashionpedia** — auxiliary source: expert-built taxonomy and fine-grained annotated attributes.
+| Source | Role | Access | Size |
+|---|---|---|---|
+| [H&M Personalized Fashion Recommendations](https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations) | Primary — catalog images, commercial metadata and roughly two years of transactions | Kaggle account, **and the competition rules must be formally accepted** before the data becomes available | ~34.6 GB |
+| [Fashionpedia](https://fashionpedia.github.io/home/index.html) | Auxiliary — expert-built ontology, 294 fine-grained attributes and segmentation masks over 48,825 images | Open, no account required | Annotations small; image archives large |
 
-Instructions for obtaining them are in [`data/README.md`](data/README.md). The test suite runs without downloading anything, using the synthetic fixtures in `tests/fixtures/`.
+H&M ships `articles.csv`, `customers.csv`, `transactions_train.csv` and an `images/` tree. Fashionpedia ships its annotation JSONs and image archives from the [CVDF repository](https://github.com/cvdfoundation/fashionpedia).
+
+Two further sources were considered and are not used: **DeepFashion** (non-commercial research only — kept as an optional extension for visual search) and **Amazon Reviews 2023** (terms not yet verified at the primary source, and not used until they are).
 
 ### Why the data is not in this repository
 
@@ -78,6 +82,30 @@ Hence the rule that governs this repository: **the project is public, the data i
 | Demo with an own catalog of redistributable images | Fashionpedia images without per-asset review |
 
 The full detail, with the verbatim text of each clause, is in [`docs/licenses.md`](docs/licenses.md).
+
+### Getting the data
+
+This section is what replaces shipping the data: **reproducibility by instruction rather than by distribution.**
+
+**Do not pull the full H&M dataset onto a laptop.** The compute plan assumes no dedicated GPU and around 16 GB of shared memory; 34.6 GB on that machine is unnecessary and counterproductive. The GPU-bound steps run **inside Kaggle notebooks, where the data already resides**. The data never moves, which sits naturally with the redistribution clause, and the GPU appears where the local hardware has none — one decision solving both the licence problem and the compute problem.
+
+**In a Kaggle notebook.** Attach the competition to the notebook; the data mounts read-only at `/kaggle/input/h-and-m-personalized-fashion-recommendations/`. The notebook stays a **ten-line launcher** — install the package, import the function, run the step, persist the result. No project logic in cells: that lives in `src/`, where it is testable and versioned.
+
+**Locally, only what a step actually needs.** With a Kaggle API token configured, `-f` fetches a single file instead of the archive:
+
+```bash
+pip install kaggle
+kaggle competitions download -c h-and-m-personalized-fashion-recommendations -f articles.csv -p data/raw/
+kaggle competitions download -c h-and-m-personalized-fashion-recommendations -f customers.csv -p data/raw/
+```
+
+Transactions and images are large enough that they are sampled in the cloud, with only the stratified working subset brought down.
+
+**Fashionpedia.** Take the annotation JSONs first — they are small and are what builds the taxonomy. The image archives are only needed if segmentation enters scope.
+
+**Every download is recorded.** The acquisition manifest in `docs/manifiesto_datos.md` logs source, URL, **date of access**, dataset version, file hashes and local location. DVC records the hash of what sits on disk; it does not record where it came from or when, and for a licensed dataset that is exactly the missing piece — without a date of access there is no way to establish which version of the terms was accepted.
+
+Downloads land in a bronze → silver → gold layout under `data/`: `raw/` untouched as downloaded, `interim/` cleaned and typed, `processed/` model-ready with frozen splits, `external/` for Fashionpedia and any secondary source. The raw layer is never modified.
 
 ---
 
@@ -121,9 +149,11 @@ smart_tagging/
 ├── tests/fixtures/     # public synthetic data
 ├── docs/               # plan, backlog, licences, decisions
 ├── reports/            # generated figures and metrics
-├── data/               # excluded from Git
+├── data/               # created locally, excluded from Git in full
 └── artifacts/          # embedding cache, excluded from Git
 ```
+
+The layout above is the target shape; it fills in across phases F0–F2. Once `tests/fixtures/` exists, the test suite will run against public synthetic data, so a third party can clone this repository and run `pytest` without obtaining either dataset.
 
 ## Documentation
 
