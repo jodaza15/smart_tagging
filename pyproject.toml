@@ -18,6 +18,9 @@ dependencies = [
     "pandas>=2.2",
     "pyarrow>=16.0",
     "pyyaml>=6.0",
+    # Experiment tracking runs wherever the pipeline runs, Kaggle included, so
+    # it is a base dependency. Imported lazily inside functions all the same.
+    "mlflow>=2.14",
 ]
 
 [project.optional-dependencies]
@@ -41,12 +44,15 @@ local = [
 
 [dependency-groups]
 dev = [
-    "ruff>=0.6",
+    "ruff==0.16.8",  # pinned: must match the rev in .pre-commit-config.yaml
     "pytest>=8.0",
     "pre-commit>=3.7",
     # Needed as a real dependency, not only as a pre-commit hook: the Git clean
     # filter installed by `nbstripout --install` invokes this interpreter.
     "nbstripout>=0.7",
+    # A command-line tool, never imported by this package, so it belongs here
+    # rather than among the runtime dependencies.
+    "dvc>=3.50",
 ]
 
 [tool.hatch.build.targets.wheel]

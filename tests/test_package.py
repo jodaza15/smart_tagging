@@ -17,9 +17,9 @@ def test_the_package_is_actually_installed():
     If the package were merely a directory on sys.path, importlib.metadata would
     find no distribution and the version would fall back to the sentinel.
     """
-    assert (
-        smart_tagging.__version__ != "0.0.0+uninstalled"
-    ), "smart_tagging is importable but not installed — run: uv pip install -e ."
+    assert smart_tagging.__version__ != "0.0.0+uninstalled", (
+        "smart_tagging is importable but not installed — run: uv pip install -e ."
+    )
 
 
 def test_importing_the_package_does_not_pull_in_torch():
