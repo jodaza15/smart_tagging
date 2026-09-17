@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "smart-tagging"
+version = "0.1.0"
+description = "AI smart tagging for fashion e-commerce catalogs"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "José David Zamudio" }]
+
+# Base dependencies: what the package needs to be imported and to move data
+# around. Deliberately small; it grows as modules land, not in anticipation.
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "pyarrow>=16.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Heavy runtimes, deliberately NOT base dependencies.
+#
+# On Kaggle torch is already installed and compiled against that session's CUDA
+# build. If this package declared torch as a base dependency, installing it there
+# would re-resolve torch and can silently swap in a CPU wheel: correct results,
+# forty times slower, no error. The environment owns torch, not this package.
+#
+# Local:  uv sync --extra local
+# Kaggle: install without the extra; the preinstalled torch is left alone.
+# CI:     installs neither, which is what keeps the import graph honest.
+local = [
+    "torch>=2.2",
+    "torchvision>=0.17",
+    "onnx>=1.16",
+    "onnxruntime>=1.18",
+    "openvino>=2024.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+    "pytest>=8.0",
+    "pre-commit>=3.7",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/smart_tagging"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+# Minimal set on purpose: pycodestyle errors and pyflakes. Rule families are
+# added deliberately when there is a reason, never inherited by accident.
+select = ["E", "F"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"

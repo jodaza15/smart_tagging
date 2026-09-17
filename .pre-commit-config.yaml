@@ -1,0 +1,10 @@
+# F0.6 scope: linter and formatter only.
+# F0.4 adds nbstripout, F0.11 adds secret detection and the large-file guard.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      # Two hooks, not one: `ruff check` lints, `ruff format` formats.
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
