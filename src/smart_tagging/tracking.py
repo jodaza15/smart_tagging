@@ -10,14 +10,16 @@ from __future__ import annotations
 
 import os
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 __all__ = [
     "CODE_REF_ENV",
     "UNKNOWN_CODE_REF",
+    "CodeIdentity",
     "experiment_name",
-    "resolve_code_ref",
+    "resolve_code_identity",
     "start_run",
     "tracking_uri",
 ]
@@ -41,38 +43,73 @@ def tracking_uri(root: Path | None = None) -> str:
     return f"sqlite:///{(root / 'mlflow.db').resolve().as_posix()}"
 
 
-def resolve_code_ref() -> str:
-    """Identify the code that is running.
+@dataclass(frozen=True)
+class CodeIdentity:
+    """Which code ran, and whether that claim can be trusted.
 
-    Locally this is the Git commit SHA. In a Kaggle session there is no `.git`
-    at all — the package arrives installed, not cloned — so MLflow cannot find
-    a commit to record, and a run would otherwise be orphaned from its code.
-
-    The launcher solves it by installing from an immutable reference and
-    exporting that same reference here. The identifier is not transmitted so
-    much as reused: it *is* the thing that determined which code ran.
-
-    Returns UNKNOWN_CODE_REF when neither source is available. That value is
-    logged as-is and on purpose: a run that cannot be tied to its code should
-    say so in the record instead of looking like every other run.
+    The two travel together on purpose. A commit SHA logged on its own
+    overclaims: it names a commit while the process may be running edits that
+    were never committed. Binding `dirty` to `ref` in one object means the
+    caveat cannot be forgotten at the call site — the design prevents the
+    defect instead of documenting it.
     """
-    declared = os.environ.get(CODE_REF_ENV)
-    if declared:
-        # Explicit wins: it is the deliberate answer for environments that have
-        # no Git metadata to infer from.
-        return declared
 
+    ref: str
+    dirty: bool | None
+
+    def as_tags(self) -> dict[str, str]:
+        return {
+            "code_ref": self.ref,
+            "code_dirty": "unknown" if self.dirty is None else str(self.dirty),
+        }
+
+
+def _git(*args: str) -> str | None:
+    """Run a Git command, or return None if Git cannot answer."""
     try:
         completed = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=True,
+            ["git", *args], capture_output=True, text=True, check=True
         )
     except (OSError, subprocess.CalledProcessError):
         # No git binary, or not inside a work tree.
-        return UNKNOWN_CODE_REF
-    return completed.stdout.strip() or UNKNOWN_CODE_REF
+        return None
+    return completed.stdout
+
+
+def resolve_code_identity() -> CodeIdentity:
+    """Identify the code that is running.
+
+    Locally this is the Git commit SHA, plus whether the working tree matches
+    it. In a Kaggle session there is no `.git` at all — the package arrives
+    installed, not cloned — so MLflow cannot find a commit to record and a run
+    would otherwise be orphaned from its code.
+
+    The launcher solves that by installing from an immutable reference and
+    exporting the same reference here. The identifier is not so much
+    transmitted as reused: it *is* what determined which code ran. There is no
+    working tree in that case, so `dirty` is None rather than False — "not
+    applicable" and "clean" are different facts.
+
+    Returns UNKNOWN_CODE_REF when neither source is available, on purpose: a run
+    that cannot be tied to its code should say so instead of looking like every
+    other run.
+    """
+    declared = os.environ.get(CODE_REF_ENV)
+    if declared:
+        # Explicit wins: it is the deliberate answer for environments with no
+        # Git metadata to infer from.
+        return CodeIdentity(ref=declared, dirty=None)
+
+    head = _git("rev-parse", "HEAD")
+    if head is None or not head.strip():
+        return CodeIdentity(ref=UNKNOWN_CODE_REF, dirty=None)
+
+    # --porcelain lists modified, staged and untracked files alike. Untracked
+    # counts here: with an editable install, an uncommitted .py under src/ is
+    # imported like any other module.
+    status = _git("status", "--porcelain")
+    dirty = None if status is None else bool(status.strip())
+    return CodeIdentity(ref=head.strip(), dirty=dirty)
 
 
 def experiment_name(hypothesis: str, splits_version: str) -> str:
@@ -103,5 +140,5 @@ def start_run(
     mlflow.set_experiment(experiment_name(hypothesis, splits_version))
 
     run = mlflow.start_run(run_name=run_name)
-    mlflow.set_tags({"code_ref": resolve_code_ref(), **(seed_tags or {})})
+    mlflow.set_tags({**resolve_code_identity().as_tags(), **(seed_tags or {})})
     return run
